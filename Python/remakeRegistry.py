@@ -5,22 +5,18 @@ wb = openpyxl.load_workbook(r"C:/Users/Josefe Gillego/Documents/Special Project/
 ws = wb["Sheet1"]
 
 # Get the column length and ignore whitespaced cells
-currentLocation = 0
+currentLocation = 1
 for i in range(1, ws.max_row):
     if ws["A" + str(i)].value != None:
-        currentLocation = i
+        currentLocation += 1
 
-# Date | Product Code | Quantity | Invoice Number | Staff
-colNames = ["A", "B", "C", "D", "E"]
-
-# first element should be the staff 
+# Get user input
 itmDetails = [""]
-line = 0
-
+    
 print("Enter the staff")
 itmDetails[0] = input()
-
-# handle multiple purchases
+    
+line = 0
 while (True):
     print("Enter the product code: ")
     itmDetails = itmDetails + [input()]
@@ -31,26 +27,39 @@ while (True):
     itmDetails = itmDetails + [input()]
     line += 1
 
-# Initialize invoice number
-invNum = str(ws["D" + str(currentLocation)].value)
+# Write data in excel
+colNames = ["A", "B", "C", "D", "E"]
 
-# Write data
+# Initialize invoice number
+invNum = str(ws["D" + str(currentLocation - 1)].value)
+
 for column in range(5):
-    for item in range(1, len(itmDetails)):
-        if (column == 0): # write the date
-            ws[str(colNames[column]) + str(currentLocation + 1 + item)] = date.today()
-        elif (column == 1 and item%2 == 0 ): # write the product code
-            ws[str(colNames[column]) + str(currentLocation + 1 + item)] = itmDetails[item]
-        elif (column == 2 and item%2 > 0 ): # write the product code
-            ws[str(colNames[column]) + str(currentLocation + 1 + item)] = itmDetails[item]
-        elif (column == 3): # write the invoice number
+    # writing the date, staff and invoice number
+    def writeExcel(identifier, data):
+        ws[str(colNames[column]) + str(currentLocation + item - identifier)] = data
+    
+    for item in range(1, int((len(itmDetails) - 2) / 2) + 1):
+        if (column == 0): 
+            writeExcel(1, date.today())
+        if (column == 3): 
             multi = False
             if (multi == False):
-                ws[str(colNames[column]) + str(currentLocation + 1 + item)] = int(date.today().strftime('%y%m%d') + format(int(invNum[6:]) + 1, '004d'))
+                writeExcel(1, int(date.today().strftime('%y%m%d') + format(int(invNum[6:]) + 1, '004d')))
+                multi = True
             else:
-                ws[str(colNames[column]) + str(currentLocation + 1 + item)] = int(date.today().strftime('%y%m%d') + format(int(invNum[6:]), '004d'))
-        elif (column == 4):
-            ws[str(colNames[column]) + str(currentLocation + 1 + item)] = itmDetails[0]
+                writeExcel(1, int(ws[str(colNames[column]) + str(currentLocation - 1)]))
+        if (column == 4):
+                writeExcel(1, itmDetails[0])
+    # write the product code and quantity
+    identA = 1
+    identB = 2
+    for item in range(1, len(itmDetails) - 1):
+        if (column == 1 and item%2 != 0):
+            writeExcel(identA, itmDetails[item])
+            identA += 1
+        if (column == 2 and item%2 == 0): 
+            writeExcel(identB, int(itmDetails[item]))
+            identB += 1
 
 wb.save(r"C:/Users/Josefe Gillego/Documents/Special Project/Python/TestFile.xlsx")
 
