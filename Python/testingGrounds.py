@@ -1,31 +1,68 @@
-"""
-# Title, Qty, Staff, Invoice Number
-titles = ["A", "B", "C", "D"]
+import kivy 
+from kivy.app import App 
+from kivy.uix.label import Label
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
 
-cColumn = None
-for i in range(2, 19):
-    cRow = i
-    rangelimit = 4
+class TestGrid(GridLayout):
+    def __init__(self, **kwargs):
+        super(TestGrid, self).__init__(**kwargs)
+         
+        #Main Grid
+        self.cols = 3
+        #Generate the title
+        self.add_widget(Label(text="PRODUCT"))
+        self.add_widget(Label(text="KEYPAD"))
+        self.add_widget(Label(text="OVERVIEW"))
+        
+        #Product Slice
+        self.prodGrid = GridLayout()
+        self.prodGrid.cols = 3
+
+        for num in range(1, 13):
+            self.submit = Button(text="Product " + str(num))
+            self.prodGrid.add_widget(self.submit)
+        self.add_widget(self.prodGrid)
+        
+        
+        #Keypad Slice
+        self.keyGrid = GridLayout()
+        self.keyGrid.cols = 3
+        
+        keys = [7, 8, 9, 4, 5, 6, 1, 2, 3, 0]
+        for num in keys:
+            self.submit = Button(text=str(num))
+            self.keyGrid.add_widget(self.submit)
+        self.submit = Button(text="ENTER")
+        self.keyGrid.add_widget(self.submit)
+        self.add_widget(self.keyGrid)
+
+        #Display and Enter Slice
+        self.dispGrid = GridLayout()
+        self.dispGrid.cols = 1
+        
+        self.dispGrid.add_widget(Label(text="LIST HERE"))
+        
+        self.submit = Button(text="ENTER")
+        self.dispGrid.add_widget(self.submit)
+        self.add_widget(self.dispGrid)
+
+        """
+        #Title
+        self.add_widget(Label(text="Staff"))
+
+        #Text input
+        self.name = TextInput(multiline=False)
+        self.add_widget(self.name)
+        #Button
+        self.submit = Button(text="Submit")
+        self.add_widget(self.submit)
+        """
+
+class TestApp(App):
+    def build(self):
+        return TestGrid()
     
-    for j in range(4):
-        cColumn = titles[j] + str(cRow)
-        if j == 3:
-            print(currentSheet[cColumn].value)
-        else:
-            print(currentSheet[cColumn].value, end = " ")
-
-print(currentSheet.max_row)
-"""
-"""
-userInput = [""]
-inputIndex = 0
-
-while(userInput[inputIndex] != "D"):
-    print("Enter an Element, otherwise enter D: ")
-    userInput = userInput + [input()]
-    inputIndex += 1
-    
-
-for element in userInput:
-    print(element)
-"""
+if __name__ == '__main__':
+    TestApp().run()
