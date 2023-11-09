@@ -9,22 +9,29 @@ from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
 
-
 class ProductSelection(BoxLayout):
     pass
+
+class KeyPad(BoxLayout):
+    pass 
 
 class TestGrid(Widget):
     def __init__(self, **kwargs):
         super(TestGrid, self).__init__(**kwargs)
         
+        #Generate the Product List
         for num in range(1, 13):
             productButton = ProductSelection()
             productButton.ids.label1.text = str(num)
-            self.ids.container.add_widget(productButton)
+            self.ids.prodContainer.add_widget(productButton)
 
-        #productWidget = ProductSelection()
-        #self.ids.container.add_widget(productWidget)
-        
+        #Generate the Keypad
+        keys = [7, 8, 9, 4, 5, 6, 1, 2, 3, 0, "ENTER", "DEL"]
+        for num in keys:
+            keyButton = KeyPad()
+            keyButton.ids.button2.text = str(num)
+            self.ids.keyContainer.add_widget(keyButton)
+
 class TestApp(App):
     def build(self):
         return TestGrid()

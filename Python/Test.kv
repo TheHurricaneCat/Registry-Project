@@ -1,0 +1,45 @@
+<ProductSelection>
+    Label:
+        id: label1
+        text: "-"
+    Button: 
+        id: button1
+        text: "ADD"
+
+<KeyPad>
+    Button:
+        id: button2
+        text: "-"
+        size_hint_y: None
+        height: 100
+        size_hint_x: None
+        width: 100
+<TestGrid>
+    
+    GridLayout:
+        cols: 3
+        size: root.width, root.height
+
+        Label: 
+            text: "PRODUCTS"
+            size_hint_y: None
+            height: 50
+        Label: 
+            text: "KEYPAD"
+            size_hint_y: None
+            height: 50
+        Label: 
+            text: "OVERVIEW"
+            size_hint_y: None
+            height: 50
+        
+        GridLayout
+            cols: 1
+            id: prodContainer
+        
+        GridLayout
+            cols: 3
+            id: keyContainer
+        GridLayout 
+            cols: 1
+            id: viewContainer
