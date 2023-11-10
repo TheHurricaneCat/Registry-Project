@@ -1,45 +1,66 @@
+<prodMod>
+    id: prodLabel
+    text: "ENTER THE PRODUCTS"
+    size_hint_y: None
+    height: 70
+
+<scroll>
+    ScrollView:
+        do_scroll_y: True
+        do_scroll_x: False    
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_y: None
+            height: 1200
+            id: prodContainer
+
 <ProductSelection>
     Label:
         id: label1
         text: "-"
     Button: 
         id: button1
+        varcont: "0"
         text: "ADD"
+        on_press: root.onProdPress()
 
 <KeyPad>
     Button:
         id: button2
         text: "-"
-        size_hint_y: None
-        height: 100
-        size_hint_x: None
-        width: 100
+
 <TestGrid>
-    
     GridLayout:
         cols: 3
         size: root.width, root.height
+        
+        #PRODUCT SLICE
+        BoxLayout:
+            orientation: "vertical"
+            id: prodGrid            
 
-        Label: 
-            text: "PRODUCTS"
-            size_hint_y: None
-            height: 50
-        Label: 
-            text: "KEYPAD"
-            size_hint_y: None
-            height: 50
-        Label: 
-            text: "OVERVIEW"
-            size_hint_y: None
-            height: 50
+        BoxLayout:
+            orientation: "vertical"
+            Label: 
+                id: keyLabel
+                text: "KEYPAD"
+                size_hint_y: None
+                height: 70
+            GridLayout:
+                cols: 3
+                id: keyContainer
         
-        GridLayout
-            cols: 1
-            id: prodContainer
-        
-        GridLayout
-            cols: 3
-            id: keyContainer
-        GridLayout 
-            cols: 1
-            id: viewContainer
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                id: viewLabel
+                text: "Product Overview"
+            GridLayout:
+                cols: 1
+                id: viewContainer
+                Button:
+                    text: "DEL"
+                    size_hint_y: 0.5
+                Button:
+                    text: "ENTER"
+                    size_hint_y: 0.5
