@@ -1,8 +1,14 @@
 <prodMod>
-    id: prodLabel
     text: "ENTER THE PRODUCTS"
     size_hint_y: None
     height: 70
+    background_color: (0,0,0,1)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
 <scroll>
     ScrollView:
@@ -24,10 +30,40 @@
         text: "ADD"
         on_press: root.onProdPress()
 
+<KeyMod>
+    text: "ENTER THE QUANTITY"
+    size_hint_y: None
+    height: 70
+
+<KeyContainer>
+    GridLayout:
+        id: keyContainer
+        cols: 3
+
 <KeyPad>
     Button:
         id: button2
         text: "-"
+        on_press: root.onKeyPress()
+
+<ViewContainer>
+    BoxLayout:
+        id: viewContainer
+        orientation: "vertical"
+
+<ViewMod>
+    text: "CURRENT PRODUCTS"
+
+<ViewPad>
+    orientation: "vertical"
+    Button:
+        id: button3
+        text: "CLEAR"
+        on_press: root.onClearPress()
+    Button:
+        id: button4
+        text: "ENTER"
+        on_press: root.onEnterPress()
 
 <TestGrid>
     GridLayout:
@@ -41,26 +77,8 @@
 
         BoxLayout:
             orientation: "vertical"
-            Label: 
-                id: keyLabel
-                text: "KEYPAD"
-                size_hint_y: None
-                height: 70
-            GridLayout:
-                cols: 3
-                id: keyContainer
-        
+            id: keyGrid
+            
         BoxLayout:
             orientation: "vertical"
-            Label:
-                id: viewLabel
-                text: "Product Overview"
-            GridLayout:
-                cols: 1
-                id: viewContainer
-                Button:
-                    text: "DEL"
-                    size_hint_y: 0.5
-                Button:
-                    text: "ENTER"
-                    size_hint_y: 0.5
+            id: viewGrid
