@@ -12,30 +12,29 @@ from kivy.uix.floatlayout import FloatLayout
 
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
-from kivy.uix.layout import Layout
-from kivy.properties import StringProperty
-
-import random
 
 global prodInfo
 prodInfo = [""]
 
-# classes for the product slice
-class prodMod(Label):
+global defaultMsg
+defaultMsg = "ENTER THE QUANTITY"
+
+#Classes for the product slice
+class ProdMod(Label):
     pass
 
-class scroll(BoxLayout):
+class ProdScroll(BoxLayout):
     pass
 
-class ProductSelection(BoxLayout):
+class ProdSelection(BoxLayout):
     global curProd
-    curProd = "Default"
+    curProd = defaultMsg
     def onProdPress(self):
         global curProd
         curProd = self.ids.label1.text
         updateProd()
         
-# classes for the quantity slice
+#Classes for the quantity slice
 class KeyContainer(BoxLayout):
     pass
 
@@ -44,44 +43,60 @@ class KeyMod(Label):
 
 class KeyPad(BoxLayout):
     global curNum
-    curNum = "Default"
-    curNum = ""
+    curNum = defaultMsg
     def onKeyPress(self):
         global curNum
+        global curProd
         global prodInfo
         if self.ids.button2.text == "DEL":
-            curNum = "ENTER THE QUANTITY"
+            curNum = defaultMsg
             updateKeys()
-            curNum = "Default"
+            print("Status: deleting quantity")
         elif self.ids.button2.text == "ENTER":
-            prodInfo = prodInfo + [str(curProd)]
-            prodInfo = prodInfo + [str(curNum)]
-            
-            if(curProd != "Default" and curNum != "Default"):
+            if (curNum != defaultMsg and curProd != defaultMsg and int(curNum)*2 != 0):
+                prodInfo = prodInfo + [str(curProd)]
+                prodInfo = prodInfo + [str(curNum)]
                 updateView()
+                curNum = defaultMsg
+                curProd = defaultMsg
+                updateKeys()
+                updateProd()
+            else: 
+                print("Error: quantity is zero or not stated ")
+        else:
+            if (curNum == "Default" or curNum == defaultMsg):
                 curNum = ""
-            else:
-                print("NO SELECTED ITEMS")
-        else: 
-            if (curNum == "ENTER THE QUANTITY" or curNum == "Default"):
-                curNum = ''
             curNum = curNum + str(self.ids.button2.text)
             updateKeys()
-    pass 
 
-# classes for overview slice
+#Classes for overview slice
 class ViewContainer(BoxLayout):
     pass
 
 class ViewMod(Label):
     pass
 
+class ViewScroll(BoxLayout):
+    pass
+
 class ViewPad(BoxLayout):
     def onClearPress(self):
+        delElem()
         print(self.ids.button3.text)
     def onEnterPress(self):
         print(self.ids.button4.text)
 
+class ViewSelection(BoxLayout):
+    global index 
+    index = 1
+    def removeItem(self):
+        global prodInfo
+        prodInfo[self.index+1] = ""
+        prodInfo[self.index] = ""
+        print(self.index)
+        print(prodInfo)
+        self.parent.remove_widget(self)
+        
 #Main Grid
 class TestGrid(Widget):
     def __init__(self, **kwargs):
@@ -89,21 +104,20 @@ class TestGrid(Widget):
 
         #Generate the Product List 
 
-        prodTitle = prodMod()
+        prodTitle = ProdMod()
         self.ids.prodGrid.add_widget(prodTitle)
 
-        addScroll = scroll()
-        self.ids.prodGrid.add_widget(addScroll)
+        addProdScroll = ProdScroll()
+        self.ids.prodGrid.add_widget(addProdScroll)
         
-        products =  ["Apple", "Banana", "Berry", "Watermelon", "Grapes", "Strawberry", "Pineapple", "Lemon"]
+        products =  ["Apple", "Banana", "Berry", "Watermelon", "Grapes", "Strawberry", "Pineapple", "Lemon","Apple", "Banana", "Berry", "Watermelon", "Grapes", "Strawberry", "Pineapple", "Lemon"]
         for num in products:
-            productButton = ProductSelection()
+            productButton = ProdSelection()
             productButton.ids.varcont = num
             productButton.ids.label1.text = num
-            addScroll.ids.prodContainer.add_widget(productButton)
+            addProdScroll.ids.prodContainer.add_widget(productButton)
         
         #Generate the Keypad
-        
         keyTitle = KeyMod()
         self.ids.keyGrid.add_widget(keyTitle)
 
@@ -121,33 +135,41 @@ class TestGrid(Widget):
         viewTitle = ViewMod()
         self.ids.viewGrid.add_widget(viewTitle)
         
+        addViewScroll = ViewScroll()
+        self.ids.viewGrid.add_widget(addViewScroll)
+        
         addConfirm = ViewContainer()
         self.ids.viewGrid.add_widget(addConfirm)
         
         confirmButton = ViewPad()
         addConfirm.ids.viewContainer.add_widget(confirmButton)
-
+        
         #Update changes
         global updateProd
         global updateKeys
         global updateView
+        global delElem
         def updateProd():
             prodTitle.text = str(curProd)
-            prodTitle.background_color = (random.uniform(0, 0.5),random.uniform(0, 0.5),random.uniform(0, 0.5),1)
         def updateKeys():
             keyTitle.text = str(curNum)
         def updateView():
-            viewTitle.text = str(prodInfo)
-            curProd = "Default"
-            curNum = "Default"
-            prodTitle.text = "ENTER THE PRODUCT"
-            prodTitle.background_color = (0,0,0,1)
-            keyTitle.text = "ENTER THE QUANTITY"
-            
+            global index
+            addProductView = ViewSelection()
+            addProductView.ids.viewTitle.text = prodInfo[-1-1]
+            addProductView.ids.viewQuantity.text = str("Qty:") + " " + prodInfo[-1]
+            addProductView.index = index
+            addViewScroll.ids.viewScrollContainer.add_widget(addProductView)
+            index = index+2
+            print(prodInfo)
+        def delElem():
+            row = [i for i in addViewScroll.ids.viewScrollContainer.children]
+            for child in row:
+                addViewScroll.ids.viewScrollContainer.remove_widget(child)
 
 class TestApp(App):
     def build(self):
-        Window.size = 730, (4*95)
+        Window.size = 1100, (4*95)
         return TestGrid()
     
 if __name__ == '__main__':

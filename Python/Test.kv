@@ -1,4 +1,4 @@
-<prodMod>
+<ProdMod>
     text: "ENTER THE PRODUCTS"
     size_hint_y: None
     height: 70
@@ -10,17 +10,20 @@
             size: self.size
             pos: self.pos
 
-<scroll>
+<ProdScroll>
     ScrollView:
         do_scroll_y: True
         do_scroll_x: False    
-        BoxLayout:
-            orientation: "vertical"
-            size_hint_y: None
-            height: 1200
+        GridLayout:
+            cols: 1
+            size_hint: (1, None)
+            height: self.minimum_height
+            pos: self.pos
             id: prodContainer
 
-<ProductSelection>
+<ProdSelection>
+    size_hint_y: None
+    height: 50
     Label:
         id: label1
         text: "-"
@@ -53,6 +56,8 @@
 
 <ViewMod>
     text: "CURRENT PRODUCTS"
+    size_hint_y: None
+    height: 70
 
 <ViewPad>
     orientation: "vertical"
@@ -64,6 +69,52 @@
         id: button4
         text: "ENTER"
         on_press: root.onEnterPress()
+
+<ViewScroll> 
+    ScrollView:
+        do_scroll_y: True
+        do_scroll_x: False    
+        GridLayout:
+            cols: 1
+            size_hint: (1, None)
+            height: self.minimum_height
+            pos: self.pos
+            id: viewScrollContainer
+
+<ViewSelection>
+    size_hint_y: None
+    height: 50
+    GridLayout:
+        cols: 4
+        index: 0
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                text: "Picture" 
+        BoxLayout: 
+            orientation: "vertical"
+            Label: 
+                id: viewTitle
+                halign: 'left'
+                text: "[b] LONG LONG PRODUCT TITLE [/b]"
+                markup: True
+            Label: 
+                id: viewQuantity
+                halign: 'left'
+                text: "Quantity"
+                markup: True
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                id: viewPrice
+                text: "[b] Price [/b]"
+                markup: True
+        BoxLayout:
+            orientation: "vertical"
+            Button:
+                text: "Remove"
+                on_press: root.removeItem()
+        
 
 <TestGrid>
     GridLayout:
@@ -81,4 +132,5 @@
             
         BoxLayout:
             orientation: "vertical"
+            size_hint_x: 3
             id: viewGrid
