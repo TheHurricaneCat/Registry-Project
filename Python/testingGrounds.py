@@ -12,12 +12,22 @@ from kivy.uix.floatlayout import FloatLayout
 
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
+from kivy.uix.popup import Popup
 
 global prodInfo
 prodInfo = [""]
 
 global defaultMsg
 defaultMsg = "ENTER THE QUANTITY"
+
+global staffFile
+staffFile = "C:/Users/Josefe Gillego/Documents/Special Project/Python/staff.txt"
+
+with open(staffFile) as f:
+    global staffList
+    staffList = f.read().splitlines()
+    print(staffList)
+    f.close()
 
 #Classes for the product slice
 class ProdMod(Label):
@@ -96,7 +106,25 @@ class ViewSelection(BoxLayout):
         print(self.index)
         print(prodInfo)
         self.parent.remove_widget(self)
+
+#Classes for staff slice
+class StaffPad(BoxLayout):
+    def selectStaff(self):
+        print("deselecting")
+    def confirmStaff(self):
+        updateCurrentStaff()
         
+class StaffSelection(BoxLayout):
+    pass
+
+class StaffConfirmation(Popup):
+    def confirmStaff(self):
+        updateStaff()
+    pass
+
+class StaffError(Popup):
+    pass
+
 #Main Grid
 class TestGrid(Widget):
     def __init__(self, **kwargs):
@@ -144,10 +172,23 @@ class TestGrid(Widget):
         confirmButton = ViewPad()
         addConfirm.ids.viewContainer.add_widget(confirmButton)
         
+        #Generate the staff panel
+        addStaffPad = StaffPad()
+        self.ids.staffGrid.add_widget(addStaffPad)
+          
+        for person in staffList:
+            staffEntry = StaffSelection()
+            staffEntry.ids.staffTitle.text = str(person)
+            self.ids.staffContainer.add_widget(staffEntry)
+
+        
         #Update changes
         global updateProd
         global updateKeys
         global updateView
+        global updateStaff
+        global updateCurrentStaff
+        global updateStaff
         global delElem
         def updateProd():
             prodTitle.text = str(curProd)
@@ -162,6 +203,22 @@ class TestGrid(Widget):
             addViewScroll.ids.viewScrollContainer.add_widget(addProductView)
             index = index+2
             print(prodInfo)
+        def updateStaff():
+            staffEntry = StaffSelection()
+            staffEntry.ids.staffTitle.text = str(currInput)
+            self.ids.staffContainer.add_widget(staffEntry)
+            staffPopup = StaffConfirmation()
+            staffPopup.dismiss()
+        def updateCurrentStaff():
+            global currInput
+            currInput = addStaffPad.ids.textInput.text
+            staffPopup = StaffConfirmation()
+            if (currInput != ""):
+                staffPopup.title = "Are you sure you want to add this person? " + "[" + currInput + "]"
+                staffPopup.open()
+            else: 
+                StaffError().open()
+
         def delElem():
             row = [i for i in addViewScroll.ids.viewScrollContainer.children]
             for child in row:
@@ -169,7 +226,7 @@ class TestGrid(Widget):
 
 class TestApp(App):
     def build(self):
-        Window.size = 1100, (4*95)
+        Window.size = 1100, (4*120)
         return TestGrid()
     
 if __name__ == '__main__':

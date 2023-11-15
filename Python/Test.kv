@@ -23,10 +23,15 @@
 
 <ProdSelection>
     size_hint_y: None
-    height: 50
+    height: 70
     Label:
         id: label1
         text: "-"
+        size_hint_y: None
+        text_size: self.width, None
+        height: self.texture_size[1]
+        halign: "center"
+        markup: True
     Button: 
         id: button1
         varcont: "0"
@@ -95,8 +100,11 @@
             orientation: "vertical"
             Label: 
                 id: viewTitle
-                halign: 'left'
                 text: "[b] LONG LONG PRODUCT TITLE [/b]"
+                #size_hint_y: None
+                text_size: self.width, None
+                height: self.texture_size[1]
+                halign: "center"
                 markup: True
             Label: 
                 id: viewQuantity
@@ -114,7 +122,54 @@
             Button:
                 text: "Remove"
                 on_press: root.removeItem()
-        
+
+#: import Factory kivy.factory.Factory
+
+<StaffConfirmation@Popup>
+    autodismiss: False
+    size_hint: 0.5, 0.2
+    title_align: "center"
+    id: staffTitle
+    title: "Are you sure you want to add this person?"
+    BoxLayout:
+        Button:
+            text: "Cancel"
+            on_press: root.dismiss()
+        Button:
+            text: "Confirm"
+            on_press: root.confirmStaff()
+
+<StaffError@Popup>
+    autodismiss: True
+    size_hint: 0.5, 0.2
+    title_align: "center"
+    title: "Error: no input"
+
+<StaffPad>
+    orientation: "vertical"
+    Button:
+        text: "DESELECT"
+        on_press: root.selectStaff()
+    Button:
+        text: "ADD"
+        on_press: root.confirmStaff()
+    TextInput:
+        id: textInput
+
+<StaffSelection>
+    size_hint_y: None
+    height: 70
+    BoxLayout:
+        Label: 
+            id: staffTitle
+            text: "-"
+            text_size: self.width, None
+            height: self.texture_size[1]
+            markup: True
+            halign: "center"
+            valignL: "middle"
+        Button:
+            text: "Select"
 
 <TestGrid>
     GridLayout:
@@ -132,5 +187,25 @@
             
         BoxLayout:
             orientation: "vertical"
-            size_hint_x: 3
+            size_hint_x: 2
             id: viewGrid
+        BoxLayout:    
+            orientation: "vertical"
+            size_hint_y: 0.5
+            Label:
+                text: "STAFF"
+                size_hint_y: None
+                height: 70
+            ScrollView:
+                do_scroll_y: True
+                do_scroll_x: False
+                GridLayout:
+                    cols: 1
+                    size_hint: (1.0, None)
+                    height: self.minimum_height
+                    pos: self.pos
+                    id: staffContainer
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_y: 0.5
+            id: staffGrid
