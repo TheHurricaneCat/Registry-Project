@@ -120,6 +120,7 @@ class StaffSelection(BoxLayout):
 class StaffConfirmation(Popup):
     def confirmStaff(self):
         updateStaff()
+        self.dismiss()
     pass
 
 class StaffError(Popup):
@@ -207,8 +208,6 @@ class TestGrid(Widget):
             staffEntry = StaffSelection()
             staffEntry.ids.staffTitle.text = str(currInput)
             self.ids.staffContainer.add_widget(staffEntry)
-            staffPopup = StaffConfirmation()
-            staffPopup.dismiss()
         def updateCurrentStaff():
             global currInput
             currInput = addStaffPad.ids.textInput.text
