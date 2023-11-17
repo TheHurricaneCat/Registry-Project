@@ -27,7 +27,6 @@
     Label:
         id: label1
         text: "-"
-        size_hint_y: None
         text_size: self.width, None
         height: self.texture_size[1]
         halign: "center"
@@ -124,26 +123,62 @@
                 on_press: root.removeItem()
 
 #: import Factory kivy.factory.Factory
-
 <StaffConfirmation@Popup>
-    autodismiss: False
-    size_hint: 0.5, 0.2
+    size_hint: 0.5, 0.8
     title_align: "center"
     id: staffTitle
-    title: "Are you sure you want to add this person?"
-    BoxLayout:
+    title: "Staff Select"
+    BoxLayout:    
+        orientation: "vertical"
+        Label:
+            size_hint_y: 0.2
+            text: "Current Staff"
+            id: currentStaff
+        ScrollView:
+            do_scroll_y: True
+            do_scroll_x: False
+            GridLayout:
+                cols: 1
+                size_hint: (1.0, None)
+                height: self.minimum_height
+                pos: self.pos
+                id: staffContainer
+        Label: 
+            size_hint_y: 0.2
+            text: "ADD STAFF"
+        TextInput:
+            id: textInput
+            size_hint_y: 0.2
+            on_focus: root.clearField()
+        Button:
+            size_hint_y: 0.4
+            text: "Confirm"
+            on_press: root.confirmStaff()
+        Button:
+            size_hint_y: 0.4
+            text: "Cancel"
+            on_press: root.dismiss()
+
+<StaffError@Popup>
+    autodismiss: False
+    title_align: "center"
+    size_hint: 0.2, 0.2
+    title: "-"
+
+<StaffConfirm@Popup>
+    autodismiss: False
+    title_align: "center"
+    size_hint: 0.4, 0.2
+    title: "Confirmation"
+    first_popup: None
+    GridLayout:
+        cols: 2
         Button:
             text: "Cancel"
             on_press: root.dismiss()
         Button:
             text: "Confirm"
-            on_press: root.confirmStaff()
-
-<StaffError@Popup>
-    autodismiss: True
-    size_hint: 0.5, 0.2
-    title_align: "center"
-    title: "Error: no input"
+            on_press: root.setStaff()
 
 <StaffPad>
     orientation: "vertical"
@@ -160,6 +195,13 @@
     size_hint_y: None
     height: 70
     BoxLayout:
+        background_color: 0, 0, 0, 0
+        canvas.before:
+            Color:
+                rgba: self.background_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
         Label: 
             id: staffTitle
             text: "-"
@@ -170,42 +212,38 @@
             valignL: "middle"
         Button:
             text: "Select"
+            on_press: 
+                root.updateStaff()
+        
 
 <TestGrid>
-    GridLayout:
-        cols: 3
+    BoxLayout:
+        cols: 1
+        orientation: "vertical"
         size: root.width, root.height
-        
-        #PRODUCT SLICE
-        BoxLayout:
-            orientation: "vertical"
-            id: prodGrid            
-
-        BoxLayout:
-            orientation: "vertical"
-            id: keyGrid
-            
-        BoxLayout:
-            orientation: "vertical"
-            size_hint_x: 2
-            id: viewGrid
-        BoxLayout:    
-            orientation: "vertical"
-            size_hint_y: 0.5
+        GridLayout:
+            cols: 2
+            size_hint: 1, 0.1
+            Button: 
+                id: staffTitle
+                background_color: 1, 1, 1, 1
+                halign: "left"
+                text: "Current Staff: None"
+                on_press: root.activatePopup()
             Label:
-                text: "STAFF"
-                size_hint_y: None
-                height: 70
-            ScrollView:
-                do_scroll_y: True
-                do_scroll_x: False
-                GridLayout:
-                    cols: 1
-                    size_hint: (1.0, None)
-                    height: self.minimum_height
-                    pos: self.pos
-                    id: staffContainer
-        BoxLayout:
-            orientation: "vertical"
-            size_hint_y: 0.5
-            id: staffGrid
+                text: ""
+        
+        GridLayout:
+            cols: 3
+            BoxLayout:
+                orientation: "vertical"
+                id: prodGrid            
+
+            BoxLayout:
+                orientation: "vertical"
+                id: keyGrid
+                
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_x: 2
+                id: viewGrid
