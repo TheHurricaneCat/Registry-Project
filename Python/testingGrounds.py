@@ -34,7 +34,6 @@ staffFile = "C:/Users/Josefe Gillego/Documents/Special Project/Python/staff.txt"
 with open(staffFile) as f:
     global staffList
     staffList = f.read().splitlines()
-    print(staffList)
     f.close()
 
 #Classes for the product slice
@@ -49,9 +48,11 @@ class ProdSelection(BoxLayout):
     curProd = defaultProdMsg
     def onProdPress(self):
         global curProd
-        curProd = self.ids.label1.text
+        curProd = self.ids.button1.text
         updateProd()
-        
+class CustomButton(Button):
+    pass
+
 #Classes for the quantity slice
 class KeyContainer(BoxLayout):
     pass
@@ -72,8 +73,7 @@ class KeyPad(BoxLayout):
             print("Status: deleting quantity")
         elif self.ids.button2.text == "ENTER":
             if (curNum != defaultNumMsg and curProd != defaultProdMsg and int(curNum)*2 != 0):
-                prodInfo = prodInfo + [str(curProd)]
-                prodInfo = prodInfo + [str(curNum)]
+                prodInfo = prodInfo + [str(curProd)] + [str(curNum)]
                 updateView()
                 curNum = defaultNumMsg
                 curProd = defaultProdMsg
@@ -114,16 +114,20 @@ class ViewScroll(BoxLayout):
 class ViewPad(BoxLayout):
     def onClearPress(self):
         delElem()
-        print(self.ids.button3.text)
     def onEnterPress(self):
-        if (currStaff != ""):
+        element = [i for i in addViewScroll.ids.viewScrollContainer.children]
+        print(element)
+        if (currStaff != "" and len(element) >= 1):
             processData()
-            print(self.ids.button4.text)
-        else:
+        elif currStaff == "":
             error = StaffError()
             error.open()
             error.title = "Error: No staff selected"
-
+        elif (len(element) < 1):
+            error = StaffError()
+            error.open()
+            error.title = "Error: No item in the catalog"
+        
 class ViewSelection(BoxLayout):
     global index 
     index = 1
@@ -131,8 +135,6 @@ class ViewSelection(BoxLayout):
         global prodInfo
         prodInfo[self.index+1] = ""
         prodInfo[self.index] = ""
-        print(self.index)
-        print(prodInfo)
         self.parent.remove_widget(self)
 
 #Classes for staff slice
@@ -192,25 +194,53 @@ class StaffConfirm(Popup):
 class TestGrid(Widget):
     def __init__(self, **kwargs):
         super(TestGrid, self).__init__(**kwargs)
+        
+        #Color values
+        #Window Color
+        parentBgColor = 249/255, 246/255, 238/255, 1 
 
+        #Product selection color control
+        prodTitleColor = 39/255, 41/255, 54/255, 1 #Blueish gray
+        prodScrollColor = 154/255, 157/255, 157/255, 1 #Whiteish gray
+        prodItemColor = 154/255,  157/255, 157/255, 1
+        
+        keyTitleColor = 39/255, 41/255, 54/255, 1
+
+        viewTitleColor = 39/255, 41/255, 54/255, 1
+
+        self.ids.bgGrid.background_color = parentBgColor
         #Generate the Product List 
-
+        
         prodTitle = ProdMod()
         self.ids.prodGrid.add_widget(prodTitle)
+        prodTitle.background_color = prodTitleColor 
 
         addProdScroll = ProdScroll()
         self.ids.prodGrid.add_widget(addProdScroll)
+        addProdScroll.background_color = prodScrollColor
         
-        products =  ["Apple", "Banana", "Berry", "Watermelon", "Grapes", "Strawberry", "Pineapple", "Lemon","Apple", "Banana", "Berry", "Watermelon", "Grapes", "Strawberry", "Pineapple", "Lemon"]
+        products =  ["Yakuza Teriyaki", "Chicano Chili", "Waddup Che&Bac","Gangbanger Tuna", "Rastaparay Veg", "Hardcore Overload"]
+        counter = 1
         for num in products:
             productButton = ProdSelection()
             productButton.ids.varcont = num
-            productButton.ids.label1.text = num
+            productButton.ids.button1.text = num
             addProdScroll.ids.prodContainer.add_widget(productButton)
-        
+            productButton.background_color = prodItemColor
+            productButton.ids.prodImage.source = 'RegistryImages/' + str(counter) + ".png"
+            if (counter % 3 == 0):
+                productButton.ids.label1.background_color = 71/255, 102/255, 194/255, 1
+            elif (counter % 2 == 0):
+                productButton.ids.label1.background_color = 61/255, 205/255, 196/255, 1
+            else:
+                productButton.ids.label1.background_color = 255/255, 222/255, 89/255, 1
+            counter+=1
+            print(counter)
+
         #Generate the Keypad
         keyTitle = KeyMod()
         self.ids.keyGrid.add_widget(keyTitle)
+        keyTitle.background_color = keyTitleColor
 
         addKeys = KeyContainer()
         self.ids.keyGrid.add_widget(addKeys)
@@ -219,13 +249,22 @@ class TestGrid(Widget):
         for num in keys:
             keyButton = KeyPad()
             keyButton.ids.button2.text = str(num)
+            if (num == "ENTER"):
+                keyButton.ids.button2.background_color = 111/255, 159/255, 91/255, 1
+            elif (num == "DEL"):
+                keyButton.ids.button2.background_color = 198/255, 92/255, 63/255, 1
+            else:
+                keyButton.ids.button2.background_color = 43/255, 50/255, 58/255, 1
             addKeys.ids.keyContainer.add_widget(keyButton)
+            
 
         #Generate the overview
 
         viewTitle = ViewMod()
         self.ids.viewGrid.add_widget(viewTitle)
+        viewTitle.background_color = viewTitleColor
         
+        global addViewScroll
         addViewScroll = ViewScroll()
         self.ids.viewGrid.add_widget(addViewScroll)
         
@@ -251,7 +290,17 @@ class TestGrid(Widget):
             addProductView = ViewSelection()
             addProductView.ids.viewTitle.text = prodInfo[-1-1]
             addProductView.ids.viewQuantity.text = str("Qty:") + " " + prodInfo[-1]
+            addProductView.ids.viewImage.source = 'RegistryImages/' + str(products.index(addProductView.ids.viewTitle.text)+1) + ".png"
             addProductView.index = index
+            color = products.index(addProductView.ids.viewTitle.text)+1
+            #Add color seperators
+            if (color % 3 == 0):
+                addProductView.ids.viewIndc.background_color = 71/255, 102/255, 194/255, 1
+            elif (color % 2 == 0):
+                addProductView.ids.viewIndc.background_color = 61/255, 205/255, 196/255, 1
+            else:
+                addProductView.ids.viewIndc.background_color = 255/255, 222/255, 89/255, 1
+            
             addViewScroll.ids.viewScrollContainer.add_widget(addProductView)
             index = index+2
             print(prodInfo)
@@ -260,11 +309,17 @@ class TestGrid(Widget):
             self.ids.staffTitle.text = "Current Staff: " + currStaff
             prodInfo[0] = currStaff
         def processData():
+            spaces = 0
             for space in prodInfo:
                 if (space == ""):
-                    del prodInfo[space]
+                    spaces+=1
+            for item in range(spaces):
+                prodInfo.remove("")
             excelProcess()
             delElem()
+            error = StaffError()
+            error.open()
+            error.title = "Entry sucessfully registered"
         def delElem():
             row = [i for i in addViewScroll.ids.viewScrollContainer.children]
             for child in row:
@@ -327,7 +382,7 @@ class TestGrid(Widget):
         global staffEntry
         staffEntry = StaffConfirmation()
         staffEntry.open()
-        self.ids.staffTitle.background_color = random.uniform(0.5, 0.8), random.uniform(0.5, 0.8), random.uniform(0.5, 0.8), 1
+        self.ids.staffTitle.background_color = random.uniform(250/255, 255/255), 0, 0, 1
     
 class TestApp(App):
     def build(self):
