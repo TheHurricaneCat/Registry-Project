@@ -14,6 +14,9 @@ from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.uix.popup import Popup
 
+import os.path
+from os.path import exists
+
 import random
 
 import openpyxl
@@ -29,12 +32,35 @@ global defaultProdMsg
 defaultProdMsg = "ENTER THE PRODUCT"
 
 global staffFile
-staffFile = "C:/Users/Josefe Gillego/Documents/Special Project/Python/staff.txt"
+staffFile = "staff.txt"
+
+
+global productFile 
+productFile = "product.txt"
 
 with open(staffFile) as f:
     global staffList
     staffList = f.read().splitlines()
     f.close()
+
+#Intialize product and its properties
+with open(productFile) as f:
+    global productList
+    productList = f.read().splitlines()
+    f.close()
+
+global products 
+global prices
+products = []
+prices = []
+for element in productList:
+    if productList.index(element) % 2 == 0:
+        products = products + [element]
+    else:
+        prices = prices + [element]
+
+global listedPrices
+listedPrices = []
 
 #Classes for the product slice
 class ProdMod(Label):
@@ -105,7 +131,7 @@ class KeyPad(BoxLayout):
 class ViewContainer(BoxLayout):
     pass
 
-class ViewMod(Label):
+class ViewMod(BoxLayout):
     pass
 
 class ViewScroll(BoxLayout):
@@ -118,7 +144,7 @@ class ViewPad(BoxLayout):
         element = [i for i in addViewScroll.ids.viewScrollContainer.children]
         print(element)
         if (currStaff != "" and len(element) >= 1):
-            processData()
+            ViewConfirmation().open()
         elif currStaff == "":
             error = StaffError()
             error.open()
@@ -133,9 +159,17 @@ class ViewSelection(BoxLayout):
     index = 1
     def removeItem(self):
         global prodInfo
+        listedPrices[self.index-1] = 0
         prodInfo[self.index+1] = ""
         prodInfo[self.index] = ""
+        updateTotal()
         self.parent.remove_widget(self)
+
+class ViewConfirmation(Popup):
+    def processConfirm(self):
+        self.dismiss()
+        staffEntry.dismiss()
+        processData()
 
 #Classes for staff slice
 class StaffPad(BoxLayout):
@@ -209,6 +243,7 @@ class TestGrid(Widget):
         viewTitleColor = 39/255, 41/255, 54/255, 1
 
         self.ids.bgGrid.background_color = parentBgColor
+        
         #Generate the Product List 
         
         prodTitle = ProdMod()
@@ -219,7 +254,6 @@ class TestGrid(Widget):
         self.ids.prodGrid.add_widget(addProdScroll)
         addProdScroll.background_color = prodScrollColor
         
-        products =  ["Yakuza Teriyaki", "Chicano Chili", "Waddup Che&Bac","Gangbanger Tuna", "Rastaparay Veg", "Hardcore Overload"]
         counter = 1
         for num in products:
             productButton = ProdSelection()
@@ -227,7 +261,10 @@ class TestGrid(Widget):
             productButton.ids.button1.text = num
             addProdScroll.ids.prodContainer.add_widget(productButton)
             productButton.background_color = prodItemColor
-            productButton.ids.prodImage.source = 'RegistryImages/' + str(counter) + ".png"
+            if (os.path.exists('RegistryImages/' + str(counter) + ".png") == True):
+                productButton.ids.prodImage.source = 'RegistryImages/' + str(counter) + ".png"
+            else:
+                 productButton.ids.prodImage.source = 'RegistryImages/0.png'
             if (counter % 3 == 0):
                 productButton.ids.label1.background_color = 71/255, 102/255, 194/255, 1
             elif (counter % 2 == 0):
@@ -250,19 +287,19 @@ class TestGrid(Widget):
             keyButton = KeyPad()
             keyButton.ids.button2.text = str(num)
             if (num == "ENTER"):
-                keyButton.ids.button2.background_color = 111/255, 159/255, 91/255, 1
+                keyButton.ids.button2.background_color = 111/255, 159/255, 91/255, 1 #Light green
             elif (num == "DEL"):
-                keyButton.ids.button2.background_color = 198/255, 92/255, 63/255, 1
+                keyButton.ids.button2.background_color = 198/255, 92/255, 63/255, 1 #Light Red
             else:
-                keyButton.ids.button2.background_color = 43/255, 50/255, 58/255, 1
+                keyButton.ids.button2.background_color = 43/255, 50/255, 58/255, 1 #Default dark
             addKeys.ids.keyContainer.add_widget(keyButton)
             
-
         #Generate the overview
 
         viewTitle = ViewMod()
         self.ids.viewGrid.add_widget(viewTitle)
-        viewTitle.background_color = viewTitleColor
+        viewTitle.ids.viewTitle.background_color = viewTitleColor
+        viewTitle.ids.viewTotalDisplay.background_color = 39/255, 41/255, 54/255, 0.8
         
         global addViewScroll
         addViewScroll = ViewScroll()
@@ -279,35 +316,66 @@ class TestGrid(Widget):
         global updateKeys
         global updateView
         global updateCurrentStaff
+        global updateTotal 
         global delElem
         global processData
         def updateProd():
             prodTitle.text = str(curProd)
+
         def updateKeys():
             keyTitle.text = str(curNum)
+
         def updateView():
             global index
             addProductView = ViewSelection()
             addProductView.ids.viewTitle.text = prodInfo[-1-1]
-            addProductView.ids.viewQuantity.text = str("Qty:") + " " + prodInfo[-1]
-            addProductView.ids.viewImage.source = 'RegistryImages/' + str(products.index(addProductView.ids.viewTitle.text)+1) + ".png"
+            addProductView.ids.viewQuantity.text = str("Qty: ") + prodInfo[-1]
+            if (os.path.exists('RegistryImages/' + str(products.index(addProductView.ids.viewTitle.text)+1) + ".png") == True):
+                addProductView.ids.viewImage.source = 'RegistryImages/' + str(products.index(addProductView.ids.viewTitle.text)+1) + ".png"
+            else: 
+                addProductView.ids.viewImage.source = 'RegistryImages/0.png'
             addProductView.index = index
+            #Update price displays
+            global listedPrices
+            addProductView.ids.viewPrice.text = "Price: " + "P" + str("{:.2f}".format(float(prices[products.index(addProductView.ids.viewTitle.text)])))
+            addProductView.ids.viewTotalPrice.text = "P" + str("{:.2f}".format(float(prodInfo[-1]) * float(prices[products.index(addProductView.ids.viewTitle.text)])))
+            listedPrices = listedPrices + [float(prodInfo[-1]) * float(prices[products.index(addProductView.ids.viewTitle.text)])]
+            listedPrices = listedPrices + [0]
+            print(listedPrices)
+            if (sum(listedPrices) != 0): 
+                viewTitle.ids.viewTotalDisplay.text = str("{:.2f}".format(sum(listedPrices)))
+            else:
+                viewTitle.ids.viewTotalDisplay.text = "0.00"
             color = products.index(addProductView.ids.viewTitle.text)+1
             #Add color seperators
             if (color % 3 == 0):
                 addProductView.ids.viewIndc.background_color = 71/255, 102/255, 194/255, 1
+                #addProductView.ids.viewQuantity.background_color = 71/255, 102/255, 194/255, 1
+                #addProductView.ids.viewPrice.background_color = 71/255, 102/255, 194/255, 1
+                addProductView.ids.viewGrid.background_color = 71/255, 102/255, 194/255, 0.5
             elif (color % 2 == 0):
                 addProductView.ids.viewIndc.background_color = 61/255, 205/255, 196/255, 1
+                #addProductView.ids.viewQuantity.background_color = 61/255, 205/255, 196/255, 1
+                #addProductView.ids.viewPrice.background_color = 61/255, 205/255, 196/255, 1
+                addProductView.ids.viewGrid.background_color = 61/255, 205/255, 196/255, 0.5
             else:
                 addProductView.ids.viewIndc.background_color = 255/255, 222/255, 89/255, 1
+                #addProductView.ids.viewQuantity.background_color = 255/255, 222/255, 89/255, 1
+                #addProductView.ids.viewPrice.background_color = 255/255, 222/255, 89/255, 1
+                addProductView.ids.viewGrid.background_color = 255/255, 222/255, 89/255, 0.5
             
             addViewScroll.ids.viewScrollContainer.add_widget(addProductView)
             index = index+2
             print(prodInfo)
+
         def updateCurrentStaff(): 
             print("updating")
             self.ids.staffTitle.text = "Current Staff: " + currStaff
             prodInfo[0] = currStaff
+
+        def updateTotal():
+            viewTitle.ids.viewTotalDisplay.text = str("{:.2f}".format(sum(listedPrices)))
+
         def processData():
             spaces = 0
             for space in prodInfo:
@@ -320,14 +388,18 @@ class TestGrid(Widget):
             error = StaffError()
             error.open()
             error.title = "Entry sucessfully registered"
+
         def delElem():
             row = [i for i in addViewScroll.ids.viewScrollContainer.children]
             for child in row:
                 addViewScroll.ids.viewScrollContainer.remove_widget(child)
             prodInfo[1:] = ""
+            listedPrices.clear()
+            viewTitle.ids.viewTotalDisplay.text = str("{:.2f}".format(sum(listedPrices)))
             global index
             index = 1
             print(prodInfo)
+
         def excelProcess():
             wb = openpyxl.load_workbook(r"C:/Users/Josefe Gillego/Documents/Special Project/Python/TestFile.xlsx")
             ws = wb["Sheet1"]
