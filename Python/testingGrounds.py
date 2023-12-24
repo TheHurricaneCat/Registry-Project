@@ -22,6 +22,35 @@ import random
 import openpyxl
 from datetime import date
 
+#Linking to google drive
+from googleapiclient.discovery import build 
+from google.oauth2 import service_account 
+
+SCOPES =  ['https://www.googleapis.com/auth/drive']
+SERVICE_ACCOUNT_FILE = 'Access Keys/service_account.json'
+PARENT_FOLDER_ID = '1Eu7nfWnt4ZncjE_2kBUEme8Z7bD0UGo6'
+
+def authenticate():
+    creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    return creds
+
+def uploadExcel(file_path):
+    creds = authenticate()
+    service = build('drive', 'v3', credentials=creds)
+    file_id = "1UBLPuOXpp7V-gZXQMUPi0kq0iRNEXmp4"
+
+    file_metadata = {
+        'name' : "main",
+        'parents' : [PARENT_FOLDER_ID]
+    }
+
+    file = service.files().update(
+        fileId = file_id,
+        media_body = file_path
+    ).execute()
+
+    #print(file)
+
 global prodInfo
 prodInfo = ["Staff Name"]
 
@@ -170,6 +199,14 @@ class ViewConfirmation(Popup):
         self.dismiss()
         staffEntry.dismiss()
         processData()
+
+class UploadConfirmation(Popup):
+    def uploadConfirm(self):
+        confirmation = StaffError()
+        confirmation.title = "Current record sucessfully uploaded to the cloud."
+        confirmation.open()
+        uploadExcel("TestFile.xlsx")
+        self.dismiss()
 
 #Classes for staff slice
 class StaffPad(BoxLayout):
@@ -455,6 +492,10 @@ class TestGrid(Widget):
         staffEntry = StaffConfirmation()
         staffEntry.open()
         self.ids.staffTitle.background_color = random.uniform(250/255, 255/255), 0, 0, 1
+
+    def pushExcel(self):
+        confirmFirst = UploadConfirmation()
+        confirmFirst.open()
     
 class TestApp(App):
     def build(self):

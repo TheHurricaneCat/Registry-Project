@@ -382,6 +382,25 @@
             radius: [5,5,5,5]
 
 #: import Factory kivy.factory.Factory
+# Popup for google drive #
+
+<UploadConfirmation@Popup>
+    autodismiss: False
+    title_align: "center"
+    size_hint: 0.4, 0.2
+    title: "Upload current load to google drive?"
+    first_popup: None
+    GridLayout:
+        cols: 2
+        Button:
+            text: "Cancel"
+            on_press: root.dismiss()
+        Button:
+            text: "Confirm"
+            on_press: root.uploadConfirm()
+# ... # 
+
+
 <ViewConfirmation@Popup>
     autodismiss: False
     title_align: "center"
@@ -520,8 +539,8 @@
             Button: 
                 background_color: 0/255, 255/255, 255/255, 1
                 halign: "left"
-                text: "Upload Recorded Data to OneDrive"
-                #on_press: root.activatePopup()
+                text: "Upload Recorded Data to Google Drive"
+                on_press: root.pushExcel()
         GridLayout:
             cols: 3
             spacing: 10
