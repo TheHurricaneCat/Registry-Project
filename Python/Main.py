@@ -262,9 +262,9 @@ class StaffConfirm(Popup):
         updateCurrentStaff()
 
 #Main Grid
-class TestGrid(Widget):
+class MainGrid(Widget):
     def __init__(self, **kwargs):
-        super(TestGrid, self).__init__(**kwargs)
+        super(MainGrid, self).__init__(**kwargs)
         
         #Color values
         #Window Color
@@ -497,10 +497,10 @@ class TestGrid(Widget):
         confirmFirst = UploadConfirmation()
         confirmFirst.open()
     
-class TestApp(App):
+class MainApp(App):
     def build(self):
         Window.size = 1100, (4*120)
-        return TestGrid()
+        return MainGrid()
     
 if __name__ == '__main__':
-    TestApp().run()
+    MainApp().run()
