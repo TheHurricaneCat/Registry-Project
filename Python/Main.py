@@ -63,6 +63,8 @@ defaultProdMsg = "ENTER THE PRODUCT"
 global staffFile
 staffFile = "staff.txt"
 
+global revenue
+revenue = 0
 
 global productFile 
 productFile = "product.txt"
@@ -171,7 +173,6 @@ class ViewPad(BoxLayout):
         delElem()
     def onEnterPress(self):
         element = [i for i in addViewScroll.ids.viewScrollContainer.children]
-        print(element)
         if (currStaff != "" and len(element) >= 1):
             ViewConfirmation().open()
         elif currStaff == "":
@@ -182,7 +183,26 @@ class ViewPad(BoxLayout):
             error = StaffError()
             error.open()
             error.title = "Error: No item in the catalog"
-        
+    def onVoidPress(self):
+        ViewVoidPrevEntry().open()
+        wb = openpyxl.load_workbook(r"TestFile.xlsx")
+        ws = wb["Sheet1"]
+
+        # Get the column length and ignore whitespaced cells
+        currentLocation = 1
+        for i in range(1, ws.max_row):
+            if ws["A" + str(i)].value != None:
+                currentLocation += 1
+
+        # Detect and remove the last entry
+        colNames = ["A", "B", "C", "D", "E"]
+        for i in range(1, currentLocation):
+            if ws["D" + str(i)].value == ws["D" + str(currentLocation - 1)].value and i > 2:
+                for j in range(5):
+                    ws[colNames[j] + str(i)] = None
+        wb.save(r"TestFile.xlsx")
+        print("Last Entry Deleted")
+
 class ViewSelection(BoxLayout):
     global index 
     index = 1
@@ -193,6 +213,10 @@ class ViewSelection(BoxLayout):
         prodInfo[self.index] = ""
         updateTotal()
         self.parent.remove_widget(self)
+
+class ViewVoidPrevEntry(Popup):
+    def processConfirm(self):
+        self.dismiss()
 
 class ViewConfirmation(Popup):
     def processConfirm(self):
@@ -266,6 +290,13 @@ class MainGrid(Widget):
     def __init__(self, **kwargs):
         super(MainGrid, self).__init__(**kwargs)
         
+        #Update Initial Values
+        wb = openpyxl.load_workbook(r"TestFile.xlsx")
+        ws = wb["Sheet1"]
+        global revenue
+        revenue = ws["G2"].value
+        self.ids.overviewTitlePrice.text = "Total Revenue: " + str(revenue)
+
         #Color values
         #Window Color
         parentBgColor = 249/255, 246/255, 238/255, 1 
@@ -309,7 +340,6 @@ class MainGrid(Widget):
             else:
                 productButton.ids.label1.background_color = 255/255, 222/255, 89/255, 1
             counter+=1
-            print(counter)
 
         #Generate the Keypad
         keyTitle = KeyMod()
@@ -356,6 +386,7 @@ class MainGrid(Widget):
         global updateTotal 
         global delElem
         global processData
+
         def updateProd():
             prodTitle.text = str(curProd)
 
@@ -378,7 +409,6 @@ class MainGrid(Widget):
             addProductView.ids.viewTotalPrice.text = "P" + str("{:.2f}".format(float(prodInfo[-1]) * float(prices[products.index(addProductView.ids.viewTitle.text)])))
             listedPrices = listedPrices + [float(prodInfo[-1]) * float(prices[products.index(addProductView.ids.viewTitle.text)])]
             listedPrices = listedPrices + [0]
-            print(listedPrices)
             if (sum(listedPrices) != 0): 
                 viewTitle.ids.viewTotalDisplay.text = str("{:.2f}".format(sum(listedPrices)))
             else:
@@ -403,7 +433,6 @@ class MainGrid(Widget):
             
             addViewScroll.ids.viewScrollContainer.add_widget(addProductView)
             index = index+2
-            print(prodInfo)
 
         def updateCurrentStaff(): 
             print("updating")
@@ -420,6 +449,15 @@ class MainGrid(Widget):
                     spaces+=1
             for item in range(spaces):
                 prodInfo.remove("")
+            # Update global renvenue preview
+            wb = openpyxl.load_workbook(r"TestFile.xlsx")
+            ws = wb["Sheet1"]
+            global revenue
+            revenue = ws["G2"].value
+            revenue = revenue + sum(listedPrices)
+            self.ids.overviewTitlePrice.text = "Total Revenue: " + str(revenue)
+            ws["G2"] = revenue
+            
             excelProcess()
             delElem()
             error = StaffError()
@@ -435,10 +473,9 @@ class MainGrid(Widget):
             viewTitle.ids.viewTotalDisplay.text = str("{:.2f}".format(sum(listedPrices)))
             global index
             index = 1
-            print(prodInfo)
 
         def excelProcess():
-            wb = openpyxl.load_workbook(r"C:/Users/Josefe Gillego/Documents/Special Project/Python/TestFile.xlsx")
+            wb = openpyxl.load_workbook(r"TestFile.xlsx")
             ws = wb["Sheet1"]
 
             # Get the column length and ignore whitespaced cells
@@ -453,8 +490,6 @@ class MainGrid(Widget):
 
             # Initialize invoice number
             invNum = str(ws["D" + str(currentLocation - 1)].value)
-            print(invNum)
-            print(prodInfo)
 
             for column in range(5):
                 # writing the date, staff and invoice number
@@ -484,7 +519,7 @@ class MainGrid(Widget):
                         writeExcel(identB, int(prodInfo[item]))
                         identB += 1
 
-            wb.save(r"C:/Users/Josefe Gillego/Documents/Special Project/Python/TestFile.xlsx")
+            wb.save(r"TestFile.xlsx")
             print("excel written")
 
     def activatePopup(self):
@@ -497,9 +532,12 @@ class MainGrid(Widget):
         confirmFirst = UploadConfirmation()
         confirmFirst.open()
     
+    def voidLastInvoice(self):
+        print("Last entry undoed")
+
 class MainApp(App):
     def build(self):
-        Window.size = 1100, (4*120)
+        Window.maximize()
         return MainGrid()
     
 if __name__ == '__main__':
