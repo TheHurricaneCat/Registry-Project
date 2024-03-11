@@ -9,5 +9,7 @@
 2. Full database overview
 3. Revenue and stock previews
 4. Change/upload excel-database directories
+  > Google drive syncing of multiple registries
+  > Specify which database to use 
 5. In-program product catalog editor
 6. Responsive UI
